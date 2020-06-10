@@ -204,7 +204,9 @@ export class UITreeNode implements OnInit {
                     dropIndex: this.index,
                     accept: () => {
                         this.processPointDrop(dropParams);
-                    }
+                    },
+                    dragNodeIndex,
+                    position
                 });
             }
             else {
@@ -213,7 +215,9 @@ export class UITreeNode implements OnInit {
                     originalEvent: event,
                     dragNode: dragNode,
                     dropNode: this.node,
-                    dropIndex: this.index
+                    dropIndex: this.index,
+                    dragNodeIndex,
+                    position
                 });
             }
         }
