@@ -14,25 +14,27 @@ import {CommonModule} from '@angular/common';
     }
 })
 export class InputTextarea implements DoCheck {
-    
+
     @Input() autoResize: boolean;
-    
+
+    @Input() autoResizeAuto = true;
+
     @Output() onResize: EventEmitter<any> = new EventEmitter();
-        
+
     filled: boolean;
 
     cachedScrollHeight:number;
 
     constructor(public el: ElementRef, @Optional() public ngModel: NgModel) {}
-        
+
     ngDoCheck() {
         this.updateFilledState();
-        
+
         if (this.autoResize) {
             this.resize();
         }
     }
-    
+
     //To trigger change detection to manage ui-state-filled for material labels when there is no value binding
     @HostListener('input', ['$event'])
     onInput(e) {
@@ -41,27 +43,30 @@ export class InputTextarea implements DoCheck {
             this.resize(e);
         }
     }
-    
+
     updateFilledState() {
         this.filled = (this.el.nativeElement.value && this.el.nativeElement.value.length) || (this.ngModel && this.ngModel.model);
     }
-    
+
     @HostListener('focus', ['$event'])
     onFocus(e) {
         if (this.autoResize) {
             this.resize(e);
         }
     }
-    
+
     @HostListener('blur', ['$event'])
     onBlur(e) {
         if (this.autoResize) {
             this.resize(e);
         }
     }
-    
+
     resize(event?: Event) {
-        this.el.nativeElement.style.height = 'auto';
+        if (this.autoResizeAuto) {
+            this.el.nativeElement.style.height = 'auto';
+        }
+
         this.el.nativeElement.style.height = this.el.nativeElement.scrollHeight + 'px';
 
         if (parseFloat(this.el.nativeElement.style.height) >= parseFloat(this.el.nativeElement.style.maxHeight)) {
