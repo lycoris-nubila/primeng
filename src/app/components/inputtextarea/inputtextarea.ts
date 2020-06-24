@@ -17,15 +17,32 @@ export class InputTextarea implements DoCheck {
 
     @Input() autoResize: boolean;
 
-    @Input() autoResizeAuto = true;
-
     @Output() onResize: EventEmitter<any> = new EventEmitter();
 
     filled: boolean;
 
     cachedScrollHeight:number;
 
-    constructor(public el: ElementRef, @Optional() public ngModel: NgModel) {}
+    mutationObserver: MutationObserver;
+
+    constructor(public el: ElementRef, @Optional() public ngModel: NgModel) {
+        this.mutationObserver = new MutationObserver(() => this.elementMutated());
+        this.listenMutations();
+    }
+
+    listenMutations() {
+        this.mutationObserver.observe(this.el.nativeElement, { attributes: true, attributeOldValue: true, attributeFilter: ['style'] });
+    }
+
+    elementMutated() {
+        this.updateFilledState();
+
+        if (this.autoResize) {
+            this.mutationObserver.disconnect();
+            this.resize();
+            this.listenMutations();
+        }
+    }
 
     ngDoCheck() {
         this.updateFilledState();
@@ -63,11 +80,18 @@ export class InputTextarea implements DoCheck {
     }
 
     resize(event?: Event) {
-        if (this.autoResizeAuto) {
-            this.el.nativeElement.style.height = 'auto';
+        this.el.nativeElement.style.height = '0';
+
+        let computedHeight = this.el.nativeElement.scrollHeight;
+        const boxSizing = getComputedStyle(this.el.nativeElement).boxSizing;
+
+        if (boxSizing === 'content-box') {
+            computedHeight = computedHeight -
+                parseInt(getComputedStyle(this.el.nativeElement).paddingTop, 10) -
+                parseInt(getComputedStyle(this.el.nativeElement).paddingBottom, 10);
         }
 
-        this.el.nativeElement.style.height = this.el.nativeElement.scrollHeight + 'px';
+        this.el.nativeElement.style.height = computedHeight + 'px';
 
         if (parseFloat(this.el.nativeElement.style.height) >= parseFloat(this.el.nativeElement.style.maxHeight)) {
             this.el.nativeElement.style.overflowY = "scroll";
