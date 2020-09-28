@@ -2106,6 +2106,7 @@ export class Calendar implements OnInit,OnDestroy,ControlValueAccessor {
 
         this.updateInputfield();
         this.updateUI();
+        this.cd.markForCheck();
     }
     
     registerOnChange(fn: Function): void {
